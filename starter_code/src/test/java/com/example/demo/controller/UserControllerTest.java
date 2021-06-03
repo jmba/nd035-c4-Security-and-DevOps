@@ -28,6 +28,11 @@ public class UserControllerTest {
 
     private BCryptPasswordEncoder bCryptPasswordEncoder = mock(BCryptPasswordEncoder.class);
 
+    String userName = "Johnson";
+    String password = "password123";
+    String encodedPassword = "encodedPwassword";
+
+
     @Before
     public void init() {
         userController = new UserController();
@@ -38,10 +43,6 @@ public class UserControllerTest {
 
     @Test
     public void createUserTest() {
-        String userName = "Johnson";
-        String password = "password123";
-        String encodedPassword = "encodedPwassword";
-
         CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest(userName, password);
 
         Mockito.when(bCryptPasswordEncoder.encode(password)).thenReturn(encodedPassword);
@@ -57,8 +58,6 @@ public class UserControllerTest {
 
     @Test
     public void findByUserNameTest() {
-        String userName = "Johnson";
-        String password = "password123";
         CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest(userName, password);
 
         ResponseEntity<User> response = userController.createUser(createUserRequest);
@@ -73,8 +72,6 @@ public class UserControllerTest {
 
     @Test
     public void findByIdTest() {
-        String userName = "Johnson";
-        String password = "password123";
         CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest(userName, password);
 
         ResponseEntity<User> response = userController.createUser(createUserRequest);

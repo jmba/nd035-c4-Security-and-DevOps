@@ -1,42 +1,83 @@
 package com.example.demo.controller;
 
 import com.example.demo.Helper;
-import com.example.demo.controllers.CartController;
-import com.example.demo.controllers.ItemController;
 import com.example.demo.controllers.OrderController;
-import com.example.demo.controllers.UserController;
-import com.example.demo.model.persistence.repositories.CartRepository;
-import com.example.demo.model.persistence.repositories.ItemRepository;
+import com.example.demo.model.persistence.Cart;
+import com.example.demo.model.persistence.Item;
+import com.example.demo.model.persistence.User;
+import com.example.demo.model.persistence.UserOrder;
 import com.example.demo.model.persistence.repositories.OrderRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import org.junit.Before;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class OderControllerTest {
-    private CartController cartController;
-    private ItemController itemController;
     private OrderController orderController;
-    private UserController userController;
 
-    private CartRepository cartRepository = mock(CartRepository.class);
-    private ItemRepository itemRepository = mock(ItemRepository.class);
     private OrderRepository orderRepository = mock(OrderRepository.class);
     private UserRepository userRepository = mock(UserRepository.class);
 
-    private BCryptPasswordEncoder encoder = mock(BCryptPasswordEncoder.class);
+    String userName = "Johnson";
+    String password = "password123";
+    String itemName = "item1";
+    BigDecimal price = new BigDecimal("22");
+    String description = "description";
+    int quantity = 5;
 
     @Before
     public void init() {
-        Helper.injectObjects(cartController, "userRepository", userRepository);
-        Helper.injectObjects(cartController, "cartRepository", cartRepository);
-        Helper.injectObjects(cartController, "itemRepository", itemRepository);
-        Helper.injectObjects(itemController, "itemRepository", itemRepository);
+        orderController = new OrderController();
         Helper.injectObjects(orderController, "userRepository", userRepository);
         Helper.injectObjects(orderController, "orderRepository", orderRepository);
-        Helper.injectObjects(userController, "cartRepository", cartRepository);
-        Helper.injectObjects(userController, "userRepository", userRepository);
-        Helper.injectObjects(userController, "bCryptPasswordEncoder", encoder);
+    }
+
+    @Test
+    public void submitTest() {
+        Item item1 = Helper.getDummyItem(1L, itemName, price, description);
+        User user1 = Helper.getDummyUser(1l, userName, password, new Cart());
+        ArrayList<Item> itemList = new ArrayList<>();
+        itemList.add(item1);
+        Cart cart = Helper.getDummyCart(1L, itemList ,user1);
+        user1.setCart(cart);
+
+        Mockito.when(userRepository.findByUsername(userName)).thenReturn(user1);
+
+        ResponseEntity<UserOrder> responseEntity = orderController.submit(user1.getUsername());
+        assertNotNull(responseEntity);
+        assertEquals(200,responseEntity.getStatusCodeValue());
+        UserOrder order = responseEntity.getBody();
+        assertNotNull(order);
+        assertEquals(1,order.getItems().size());
+    }
+
+    @Test
+    public void getOrdersForUserTest() {
+        Item item1 = Helper.getDummyItem(1L, itemName, price, description);
+        User user1 = Helper.getDummyUser(1l, userName, password, new Cart());
+        ArrayList<Item> itemList = new ArrayList<>();
+        itemList.add(item1);
+        Cart cart = Helper.getDummyCart(1L, itemList ,user1);
+        user1.setCart(cart);
+
+        Mockito.when(userRepository.findByUsername(userName)).thenReturn(user1);
+        orderController.submit(user1.getUsername());
+
+        ResponseEntity<List<UserOrder>> responseEntity = orderController.getOrdersForUser(user1.getUsername());
+        assertNotNull(responseEntity);
+        assertEquals(200,responseEntity.getStatusCodeValue());
+
+        List<UserOrder> orders = responseEntity.getBody();
+        assertNotNull(orders);
     }
 }
