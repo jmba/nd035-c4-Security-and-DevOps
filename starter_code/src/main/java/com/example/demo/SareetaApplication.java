@@ -1,5 +1,8 @@
 package com.example.demo;
 
+import com.example.demo.controllers.UserController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -18,8 +21,12 @@ public class SareetaApplication {
 		return new BCryptPasswordEncoder();
 	}
 
+	public static final Logger log = LogManager.getLogger(UserController.class);
+
 	public static void main(String[] args) {
 		SpringApplication.run(SareetaApplication.class, args);
+		log.debug("the built-in DEBUG level");
+		log.info("the built-in INFO level");
+		log.error("the built-in ERROR level");
 	}
-
 }
