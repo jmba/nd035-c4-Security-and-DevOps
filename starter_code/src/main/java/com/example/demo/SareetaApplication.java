@@ -25,8 +25,5 @@ public class SareetaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SareetaApplication.class, args);
-		log.debug("the built-in DEBUG level");
-		log.info("the built-in INFO level");
-		log.error("the built-in ERROR level");
 	}
 }
