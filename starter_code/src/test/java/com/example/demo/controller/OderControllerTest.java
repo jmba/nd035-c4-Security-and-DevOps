@@ -11,6 +11,7 @@ import com.example.demo.model.persistence.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
@@ -62,6 +63,13 @@ public class OderControllerTest {
     }
 
     @Test
+    public void submitNotFoundTest() {
+        Mockito.when(userRepository.findByUsername("Unknown")).thenReturn(null);
+        ResponseEntity<UserOrder> response = orderController.submit("Unknown");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
     public void getOrdersForUserTest() {
         Item item1 = Helper.getDummyItem(1L, itemName, price, description);
         User user1 = Helper.getDummyUser(1l, userName, password, new Cart());
@@ -79,5 +87,12 @@ public class OderControllerTest {
 
         List<UserOrder> orders = responseEntity.getBody();
         assertNotNull(orders);
+    }
+
+    @Test
+    public void getOrdersForUserNotFoundTest() {
+        Mockito.when(userRepository.findByUsername("Unknown")).thenReturn(null);
+        ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser("Unknown");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

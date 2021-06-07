@@ -32,7 +32,6 @@ public class UserControllerTest {
     String password = "password123";
     String encodedPassword = "encodedPwassword";
 
-
     @Before
     public void init() {
         userController = new UserController();
@@ -44,16 +43,23 @@ public class UserControllerTest {
     @Test
     public void createUserTest() {
         CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest(userName, password);
-
         Mockito.when(bCryptPasswordEncoder.encode(password)).thenReturn(encodedPassword);
-
         ResponseEntity<User> response = userController.createUser(createUserRequest);
         User userCreated = response.getBody();
-
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals( userName, userCreated.getUsername() );
         assertEquals(encodedPassword, userCreated.getPassword());
+    }
+
+    @Test(expected=NullPointerException.class)
+    public void createUserTestMalformedRequestObject() {
+        CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest("", password);
+        ResponseEntity<User> response = userController.createUser(createUserRequest);
+        User userCreated = response.getBody();
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        userCreated.getUsername();
     }
 
     @Test
@@ -71,6 +77,12 @@ public class UserControllerTest {
     }
 
     @Test
+    public void findByUserNameTestUnknownNameTest() {
+        ResponseEntity<User> response = userController.findById(42L);
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    @Test
     public void findByIdTest() {
         CreateUserRequest createUserRequest = Helper.getDummyCreateUserRequest(userName, password);
 
@@ -82,5 +94,11 @@ public class UserControllerTest {
         ResponseEntity<User> foundUser = userController.findById(userCreated.getId());
         assertEquals(userName , foundUser.getBody().getUsername());
         assertEquals(200,foundUser.getStatusCodeValue());
+    }
+
+    @Test
+    public void findByIdTestUnknownIdTest() {
+        ResponseEntity<User> response = userController.findByUserName("Unknown");
+        assertEquals(404, response.getStatusCodeValue());
     }
 }
